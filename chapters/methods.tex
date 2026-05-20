@@ -1,0 +1,116 @@
+\chapter{Methods}\label{chap:methods}
+
+This chapter provides the construction plan for the entire research. This includes how the data for the research is built and collected, as well as how information is extracted from that data.
+
+\section{Subject of Research}
+
+\textit{Yandex} mainly offers three different ways to use their large language models. Each of these has different purposes and environments for use. In the remaining thesis, when the word deployment is used, it refers to this way of accessing the model in its environment \footnote{\url{https://yandex.com}}.
+
+\subsection{Alice Chat Web Application}
+
+Alice provides the most direct method to use a model of \textit{Yandex}. It is a simple ChatGPT-like web interface that allows a user to easily interact with an LLM. Here, the underlying LLM itself is also called Alice. This deployment is meant to be used by average non-technical everyday users. It is free to use and also allows RAG using web searches \footnote{\url{https://alice.yandex.ru/}}.
+
+\subsection{Alice Completion API through Yandex Cloud}
+
+Another way to access the same model used for the \textit{Alice Web} interface is the \textit{Yandex Cloud Platform} \footnote{\url{https://yandex.cloud/ru}} which is essentially a clone of the popular \textit{Google Cloud Platform} but instead running on the servers of \textit{Yandex}. The difference between the above Alice AI Web Application and the Yandex Cloud API is the developer's ability to use it through an \textit{OpenAI} compliant \textit{Rest API} \footnote{OpenAI created an OpenAPI specification to access their models by several clients. This specification has been adopted by other players in the industry: \url{https://github.com/openai/openai-openapi}}. The only catch is that using the model is not free but is paid per million tokens (input and output tokens). This is a limitation in the research since it is currently not possible to send money to Russia from western countries because of the sanctions resulting from the current geopolitical situation. In order to get around this, the initial grant for signing up for a Yandex account is used to prompt the model.
+
+\subsection{YandexGPT on Local Machine}
+
+The previous two deployments had two things in common: They used models which are closed source or are deployed in an environment controlled by \textit{Yandex}. But, fortunately, the search company also offers an open weights model called \textit{"yandexgpt-5-lite"}. This model weighs in at around 8 billion parameters and therefore can be self-hosted using a consumer graphics card \footnote{\url{https://huggingface.co/yandex/YandexGPT-5-Lite-8B-instruct}}.
+
+\subsection{Mistral 3 Small}
+
+\textit{Mistral} \footnote{\url{https://mistral.ai/}} is a French AI company which provides a wide variety of models which are open weights and therefore can also be self-hosted. The model chosen for this research is the small 24 billion parameter version \footnote{\url{https://huggingface.co/mistralai/Mistral-Small-3.2-24B-Instruct-2506}}. It will also be self-hosted using an \textit{Nvidia} graphics card, which is used to provide a rough baseline for later comparisons.
+
+\section{Prompt Generation}
+
+Now that the deployments and models are set, the prompts fed to the models need to be generated. Since this is a common problem in machine learning, there are several datasets available on the web ready to be used. For this research, the \textit{IssueBench} dataset is chosen as a basis \cite{rottgerIssueBenchMillionsRealistic2026a}. The dataset consists of three subsets
+\begin{itemize}
+	\item a set of template strings (eg. "Write a blog post about ...")
+	\item a set of topics (eg. "the impact of AI on the society")
+	\item a set of polarities (positive $\rightarrow$ "good", neutral $\rightarrow$ $\epsilon$ , negative $\rightarrow$ "bad")
+\end{itemize}
+These subsets are combined using the cartesian product to generate a giant set of over two million different prompts \autocite{rottgerIssueBenchMillionsRealistic2026a}:
+
+\begin{center}
+	$prompts = templates \times topics \times polarities$
+\end{center}
+
+But this raises an issue with the \textit{Yandex Cloud Platform}: the initial grant provided by \textit{Yandex} for prompting their LLMs is generous, but still limited, and is not enough to compute outputs for every single of the prompts provided by \textit{IssueBench}. This is why the prompting set needs to be stripped down in order to fully go through.
+
+The most direct approach to achieve this is by reducing the individual subsets. Since this research focuses on the reaction of the model to certain topics and their polarities, these sets will remain the same. All things considered, this leads to the conclusion that the template set needs to be reduced down to the minimum size. In order to achieve this, the most generic template will be chosen: \textit{"Write me a text about ..."}
+
+\begin{center}
+	$prompts = \{  \textit{"Write me a text about ..."} \} \times topics \times polarities$
+\end{center}
+
+Applying this method to \textit{IssueBench} results in a custom dataset which contains all topics and polarities provided by the original dataset where the only variance is the topic and the polarity, allowing the model to freely write any text about the topic given by the prompt.
+
+\section{Topic Modeling}
+
+\textit{IssueBench} on its own does not provide categories for the prompts it generates. To solve this, a combination of common methods from the field of \textit{Natural Language Processing} (NLP) and \textit{Machine Learning} (ML) is used \cite{theocharopoulosLargeLanguageModels2025}. This approach is inspired by \textit{BERTopic} \cite{grootendorstBERTopicNeuralTopic2022a}.
+
+\subsection{Generate Embeddings}
+
+In the first step of the topic modeling process, the vector embeddings for each prompt in the dataset are computed. To do so, we are using the \textit{jina-embeddings-v3} model, which results in a 1024-dimensional array of floating point numbers for each prompt previously generated \cite{sturuaJinaembeddingsv3MultilingualEmbeddings2024,grootendorstBERTopicNeuralTopic2022a}.
+
+\subsection{Clustering}
+
+Afterwards a clustering algorithm like \textit{KMeans} is applied to each of those embeddings. The KMeans algorithm requires the user to define the amount of clusters to find, which requires some testing and experiments with the dataset \cite{grootendorstBERTopicNeuralTopic2022a, sinagaUnsupervisedKMeansClustering2020}.
+
+\subsection{Generate Topic Titles}
+
+Last, the prompts inside each cluster are gathered to find a common topic. This is done by using an LLM, in this case \textit{Qwen 3.5}, which receives a system prompt and a text corpus. The system prompt tells the model to find a common topic name for the text corpus. The text corpus then is constructed from the concatenated prompting texts in the cluster \cite{theocharopoulosLargeLanguageModels2025,grootendorstBERTopicNeuralTopic2022a}. (see \ref{appendix:topic-prompt})
+
+\section{LLM Prompting}
+
+This is the most critical step, since it requires extensive configuration to circumvent bot detection, avoid geo-blocking, and, in the case of the web interface, scrape the final output from HTML. There also needs to be a fail-safe mechanism which allows for resuming the automatic prompting after either the server or client crashes \autocite{wahedAutomatingWebData2024}.
+
+For scraping the Alice web app, a Python script is written which uses Selenium \footnote{Selenium is a tool which allows to automatically execute certain actions on a website rendered inside a web browser: \url{https://www.selenium.dev/}} to navigate to the web app, types the prompt, waits until generation is finished, and clicks the copy button to get the raw markdown output of the model. (see \ref{appendix:selenium})
+
+The remaining deployments present considerably simpler access, since the Rest APIs of all of the other deployments are compliant with the OpenAI SDK. This allows for native prompting from a Python script using the \textit{OpenAI} \footnote{\url{https://github.com/openai/openai-python}} library.
+
+In order to avoid geo-blocking and possibly influence the output, a VPN is setup on the client which connects to a non-western country like Turkey \autocite{khanStrangerVPNsInvestigating2023}. For ease of use \textit{MullvadVPN} \footnote{\url{https://mullvad.net/}} is used since it offers a modern \textit{WireGuard} \footnote{\url{https://www.wireguard.com/}} VPN that can be setup on any client.
+
+\section{Output Evaluation}
+
+The evaluation phase follows. A wide range of different metrics can be applied. For this reason, the thesis will focus on a limited amount of key aspects that are interesting when evaluating the output of Russian models and their environments.
+
+\subsection{Refusal Rate}
+
+The first metric that will be computed is the refusal rate (RR). RR simply describes the relative amount of prompts where the deployed model refuses to answer, i.e., where it does not generate a useful output. This metric is interesting since it can be an indicator either for censorship or for a safety mechanism applied to protect the user from unwanted content \cite{garcia-ferreroRefusalSteeringFinegrained2025}.
+
+In order to compute this metric, a system needs to be built which allows for identifying the rows in the output that indicate a refusal. This can be done with multiple methods: Human Evaluation, LLM-as-a-Judge, Text Matching, Vector Embeddings, etc \cite{guSurveyLLMasajudge2026,ahmedAnalysisChineseCensorship2025a}. Since we are dealing with a multilingual dataset, we will use a combination of Human Evaluation and Text Matching with generated Vector Embeddings in a two-step process:
+
+\begin{itemize}
+	\item At first, rows with below-average length compared to the average output length of the whole dataset are selected. For these rows, a human evaluates whether they count as a refusal and puts them into a refusal dataset, which is just a set of examples for that output category. Additionally, to make it more robust, additional synthetic examples were generated, such as \textit{"I'd rather not answer this..."}. These act as refusal examples for the next step.
+	\item In the second step, the embeddings for each output row and refusal example are generated. Then each output embedding is compared to each embedding of the refusal examples using the cosine similarity metric. If this metric surpasses a certain threshold, it is flagged as a refusal \cite{sitikhuComparisonSemanticSimilarity2019, sturuaJinaembeddingsv3MultilingualEmbeddings2024}.
+\end{itemize}
+
+This approach takes inspiration from the technology behind vector databases \cite{xieBriefSurveyVector2023}. During a test run this method demonstrates consistent performance throughout languages since the refusals contain both English and Russian examples.
+
+\subsection{Pairwise Output Similarity Using Embeddings}
+
+Thus far, this analysis has examined metrics computed for each prompt individually. The next step is to compare the outputs of each deployment directly to each other \cite{sitikhuComparisonSemanticSimilarity2019}.
+
+In order to make any findings here, the embedding vectors for the outputs of each deployment need to be generated. In this case, this is done using the \textit{jina-embeddings-v3} model using the \textit{"text-matching"} task when accessing it via the \textit{HuggingFace Transformers} library \autocite{sturuaJinaembeddingsv3MultilingualEmbeddings2024,jainIntroductionTransformersNLP2022}.
+
+Using these embeddings, a similarity score between each deployment pair for deployment $A$ and $B$ is generated by computing the mean cosine similarity between each embedding pair of the deployments \autocite{parkMethodologyCombiningCosine2020}.
+
+\begin{center}
+	$embedding(A) =$ "Vector of A's output embeddings"
+	\break
+	$score(A, B) = median(sim_{cos}(embedding(A), embedding(B)))$
+\end{center}
+
+To visualize this comprehensively those scores are put in a heatmap matrix. The matrix will be symmetrical since the computation of the above score is commutative.
+
+\subsection{Output Language}
+
+When making evaluations on the output language, there first needs to be determined the language of the output given by the model. This can be done using a tool called \textit{langdetect} \cite{shuyoLanguageDetectionLibrary2010}. The original tool was written in Java, but a Python port will be used here.
+
+Combined with the previously determined category, this can be used to evaluate for the categories where the model does not stick to the language it has been prompted with.
+
+\subsection{Setup Organization}
+
+In order to conduct the research, multiple setups are used: most of the data retrieval is done on a private laptop using \textit{Python}, \textit{Selenium}, and a \textit{Firefox Web Browser}. Tasks which require high parallel compute performance are performed in a Compute Container on the \textit{Innkube Compute Cluster} of the University of Passau at the Data Science Chair. These tasks involve both data retrieval for all self-hosted models and things required for evaluation like generating the embeddings for most of the evaluations. To keep the retrieved data and the code required for this work safe and in sync across these setups, a repository on GitHub is set up \footnote{Git Repository for this work: \url{https://github.com/codehauer/bachelorarbeit}}

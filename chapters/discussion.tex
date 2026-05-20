@@ -1,0 +1,33 @@
+\chapter{Discussion}\label{chap:discussion}
+
+To discuss the results of this research, the following chapter will both answer the individual research questions, and show where the limitations of this work are.
+
+\section{Answers to Research Questions}
+
+\textbf{(RQ1) How does the output of Yandex's Large Language Models differ across different model deployments?}
+
+A clear difference is the high similarity in outputs of models deployed on the Yandex Cloud Platform. These show similar behavior in both refusal rates and output semantics measured via pairwise cosine similarity. When looking at results from the research on cosine similarity it gets clear that most of Yandex's models answers are semantically similar according to this measure. This could be because of their training dataset or because of there similar refusal behavior \autocite{ahmedAnalysisChineseCensorship2025a}.
+
+\textbf{(RQ2) Which conversational topics trigger refusal responses in the models?}
+
+The answer to this question depends heavily on the deployment and input language. All Yandex API deployments show high refusal rates across most tested topics (\> 20\% per topic). Topics that triggered the highest refusal rates across deployments were politically sensitive subjects, particularly those related to \textit{China}, the \textit{United States}, and \textit{Gender} issues. For English prompts, the \textit{YandexGPT API} and \textit{Alice API} exhibited refusal rates exceeding 40\% in these categories. In contrast, water-related and apolitical topics exhibited significantly lower refusal rates (below 10\%) across all deployments. Notably, the \textit{"China"} category presented an anomaly: while \textit{YandexGPT API} showed the highest refusal rate across all deployments, \textit{Alice API} did not refuse to answer this category a single time, suggesting inconsistent filtering rules between different API endpoints. When prompted in Russian, most deployments showed markedly lower refusal rates across all topics, indicating that the filtering mechanism is more sensitive to English-language inputs.
+
+\textbf{(RQ3) Which deployment or model exhibits the highest refusal rate and which the lowest?}
+
+The API version of the YandexGPT model exhibits the highest refusal rate with over 40\% of all prompts, followed closely by Alice's API version. Notably, all deployments based on the Yandex Cloud API refuse significantly more often than all the other tested deployments. Conversely, the lowest refusal rate was measured for the tested deployment of the Mistral model. Among Russian models, the lowest refusal rate was observed for the local deployment of YandexGPT.
+
+\textbf{(RQ4) What patterns exist in the refusal behaviors across different deployments?}
+
+The most notable pattern is the identical refusal text across all Yandex API deployments: a Russian text stating that it "[...] can't answer the question." \ref{fig:aliceapi_russian_output}, \ref{fig:yandexgptapi_russian_output}
+This research also shows a clear tendency for deployments to respond to the user's input language in multiple aspects. The analysis shows that Yandex's deployments tend to return outputs in Russian when it comes to critical topics like \textit{China, the US, or Gender}.
+
+\textbf{(RQ5) Is there a correlation between the dataset language and the model's output tendency?}
+
+When using the English input dataset \textit{Alice API} and \textit{YandexGPT API} the refusal rate clearly increases on both models compared to the Russian input dataset. (see \ref{fig:refusals_per_deployment_lang})
+
+
+The evaluation results demonstrate one clear finding: \textit{Yandex} implements substantial content filtering on the models deployed on its cloud platform (\textit{Yandex Cloud}). It is open for discussion how Yandex implements this since there would be multiple techniques to do so \autocite{garcia-ferreroRefusalSteeringFinegrained2025}. Additionally, the open model it provides also shows evidence of censorship, for which it was probably aligned since we executed the raw model using the transformers library \autocite{wangRefusalDirectionUniversal2026}. An unanticipated finding was that \textit{Alice AI}, the \textit{ChatGPT} counterpart, exhibits less content filtering than the API on their cloud platform, despite being accessible to a larger portion of the population \ref{fig:refusals_per_deployment}. The reasons for this discrepancy remain open to discussion. One possibility is that its ability to search the web for information contributes to this difference \autocite{lewisRetrievalaugmentedGenerationKnowledgeintensive2020}. Another point of discussion is whether censorship in the form of false, tendentious, or missing information in the models' outputs was overlooked, as this research did not primarily focus on content when evaluating the text output. We also cannot say whether Yandex applies these censorship measures to all models at all times. This is because the experiment was conducted over only a short period of time, and not all models available through the API were tested.
+
+\section{Limitations}
+
+Although this work covered many aspects of the topic and the collected dataset, it has some limitations that leave room for improvement. The most significant limitation is that the full research potential of the IssueBench dataset was not used to align with Yandex's initial grant limitations. Additionally, the resulting dataset was analyzed only using machine learning metrics (like cosine similarity), limiting the understanding of the actual content the deployments outputted. Additionally this work has limited ability to explain most of the cosine similarity behavior since it did not focus on model architecture or training datasets. Lastly, the entire output retrieval process was very static. There was no variation in prompting order, time, iteration, and location. This could have potentially influenced the collected output and therefore could yield a slightly different picture of the findings.

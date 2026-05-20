@@ -1,0 +1,23 @@
+{
+  "latex-workshop.latex.tools": [
+    {
+      "name": "lualatex",
+      "command": "latexmk",
+      "args": [
+        "-pdf",
+        "-lualatex",
+        "-interaction=nonstopmode",
+        "-synctex=1",
+        "%DOC%"
+      ]
+    }
+  ],
+  "latex-workshop.latex.recipes": [
+    {
+      "name": "lualatex",
+      "tools": ["lualatex"]
+    }
+  ],
+  "latex-workshop.latex.autoBuild.run": "onSave",
+  "latex-workshop.latex.recipe.default": "lualatex"
+}

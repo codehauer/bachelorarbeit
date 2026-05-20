@@ -1,0 +1,33 @@
+name: Build LaTeX Document
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build LaTeX document
+        uses: xu-cheng/latex-action@4.1.0
+        with:
+          root_file: thesis.tex
+          latexmk_use_lualatex: true
+
+      - name: Upload PDF
+        uses: actions/upload-artifact@v4
+        with:
+          name: thesis
+          path: thesis.pdf
+
+      - name: Push releases
+        uses: softprops/action-gh-release@v3
+        if: github.ref_type == 'tag'
+        with:
+          files: |
+            thesis.pdf
+            tag_name: ${{ github.ref_name }}

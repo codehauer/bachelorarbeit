@@ -1,0 +1,28 @@
+# LaTeX temporary files
+**/*.log
+**/*.aux
+**/*.bcf
+**/*.fls
+**/*.lof
+**/*.lot
+**/*.toc
+**/*.bbl
+**/*.blg
+**/*.fdb_latexmk
+**/*.bak0
+**/*.bak1
+**/*.bak
+**/*.out
+**/*.snm
+**/*.nav
+**/*.vrb
+**/*.bak*
+**/*.synctex.gz
+**/*.synctex(busy)
+
+# Build artifacts
+**/*.pdf
+**/*.dvi
+
+# Editor files
+**/*.xml

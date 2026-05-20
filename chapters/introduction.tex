@@ -1,0 +1,33 @@
+\chapter{Introduction}\label{chap:introduction}
+
+
+As \textit{Large Language Models (LLM)}, also referred to as \textit{AI (Artificial Intelligence)}, become more advanced with each year of their development, so does their use expand in societies around the globe. This all happens while the average non-technical user does not even notice the war of AI companies going on behind the scenes. This even reaches the extent that AI-powered tools like \textit{ChatGPT} are increasingly being used as alternatives to traditional search engines like Google. Studies show that users perceive ChatGPT's responses as having higher information quality and report better user experiences compared to Google Search~\cite{xuChatGPTVsGoogle2023b}. However, recent studies also question whether these answer engines can truly fulfill their promise of replacing traditional search, citing issues with hallucination and citation accuracy~\cite{narayananvenkitSearchEnginesAI2025}. In this strategic race for model advancement, many nations seek to gain a share of the AI economy. Even Russia, whose economy suffers from the sanctions applied since the war in Ukraine started, has ambitions and does not want to be left behind. The Russian search company \textit{Yandex} found a way to obtain the computing hardware required to develop \textit{LLM}s \autocite{dobryninDeepSeekRisesRussia12:04:56Z}. It currently offers both open source and closed source models\footnote{Open source models have publicly available model weights and architecture, allowing them to be run on local hardware. Closed source models are proprietary and can only be accessed through APIs or web interfaces provided by the model owner \autocite{kukrejaLiteratureSurveyOpen2024}.} which each can be accessed through different deployments such as their Cloud Platform or on local hardware.
+
+\section{Motivation}
+
+Since the beginning of the Russian war on Ukraine, the Russian government became noticeably more authoritarian. This led to increased censorship and control over the media landscape, spreading propaganda within the country \autocite{fischerRussiaRoadDictatorship}. In order to do so, Russia is aiming to build its own isolated sovereign internet, the RuNet \autocite{martynovaDigitalTransformationRussia2024}. A central building block for this will be to become independent of foreign AI models. This is where Yandex, the Russian search company, comes into play. After 2022, the company also started training its own AI models, which it published as different kinds of products for different customer groups \autocite{YandeksVykladyvaetOtkrytyy}. In the following, those different products will be called deployments.
+
+\section{Research Questions}
+
+This thesis will address the following research questions:
+
+\begin{enumerate}
+	\item \textbf{RQ1} How does the output of Yandex's Large Language Models differ across different model deployments?
+	\item \textbf{RQ2} Which conversational topics trigger refusal responses in the models?
+	\item \textbf{RQ3} Which deployment or model exhibits the highest refusal rate and which the lowest?
+	\item \textbf{RQ4} What patterns exist in the refusal behaviors across different deployments?
+	\item \textbf{RQ5} Is there a correlation between the dataset language and the model's output tendency?
+\end{enumerate}
+
+\section{Key Findings}
+
+The key findings of this thesis will reveal that Yandex's API deployments exhibit significantly higher refusal rates compared to local or web-based deployments, particularly for English prompts. Additionally, a pre-model filtering mechanism will be identified in the API deployments, and models will show a tendency to respond in Russian even when prompted in English. These results will underscore the impact of deployment environments on LLM behavior, with implications for transparency, censorship, and the adaptability of models in politically sensitive contexts.
+
+\section{AI-Assisted Language Improvement}
+
+During the preparation of this work, AI-powered language tools, namely OpenCode, Qwen3.5-397B-A17B-FP8 and DeepL, were used to improve the clarity and correctness of the text. The assistance included grammar and spelling corrections, improvement of sentence structure and phrasing, standardization of tense usage throughout chapters, and resolution of technical formatting issues in the LaTeX document. All content, research findings, analysis, and intellectual contributions remain the sole work of the author. The AI tool was used exclusively for language refinement and did not contribute to the research methodology, data analysis, or conclusions presented in this thesis.
+
+\section{Structure of the Thesis}
+
+This research will be divided into four main sections. First, we will explain how the dataset required for prompting is obtained. Second, we will describe the prompting of the different deployments, including the setup used for this task. This will be followed by the evaluation of the retrieved data, and finally, the interpretation of the evaluation results.
+

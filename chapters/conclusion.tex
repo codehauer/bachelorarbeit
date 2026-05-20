@@ -1,0 +1,23 @@
+\chapter{Conclusion}\label{chap:conclusion}
+
+We finalize the this work with the final conclusion which will provide a summary of all important findings and a outlook for future work in this field.
+
+\section{Summary}
+
+The refusal rate analysis results suggested that Yandex had implemented a pre-model filtering mechanism in its API deployments. This conclusion was supported by the observation that refusal rates remained comparable across different models hosted on the Yandex Cloud Platform, with the refusal texts themselves being identical.
+
+Notably, \textit{Alice Web} exhibited refusal rates comparable to \textit{YandexGPT local}, which was unexpected given that \textit{Alice Web} is primarily used by everyday non-technical users, a demographic that the Russian government would presumably have a strong interest in influencing through censorship. In contrast, API-based deployments demonstrated substantially higher refusal rates across nearly all topic categories, particularly for politically sensitive subjects such as Sustainability, China, and Regulations.
+
+Regarding output similarity, \textit{Alice API} and \textit{YandexGPT API} exhibited unexpectedly high similarity scores despite being based on entirely different models. This finding was attributed to the identical refusal texts produced by both API deployments. Additionally, Mistral and \textit{Alice Web} showed higher-than-expected output similarity, potentially explained by \textit{Alice Web}'s RAG capabilities or its more recent model architecture.
+
+The analysis of language-dependent output differences revealed several notable patterns. API-based deployments demonstrated heightened sensitivity to English-language prompts, resulting in both increased refusal rates and a tendency to respond in Russian despite English input. Conversely, the local YandexGPT deployment exhibited the opposite behavior, refusing more frequently when prompted in Russian.
+
+\section{Outlook}
+
+This work covered only a general experimental setup. Future work could adjust the parameters of this setup to observe their influence on the deployments' outputs. Such parameters could include the VPN location, the time of retrieval, or model parameters themselves, such as temperature (determinism) or the setting for the maximum output tokens. Additionally, numerous collected features in the data were not utilized for evaluation. Examples include the generation time and the output length.
+
+Future research could also analyze output content in depth to identify misinformation, censorship, or framing. This could be achieved through manual content analysis or by comparing the outputs against verified ground-truth sources.
+
+Furthermore, the finding regarding Russian-language responses to U.S.-related topics by \textit{Alice Web} could be investigated in greater detail by expanding the prompt set to include more U.S.-related topics and analyzing the sentiment and narrative framing of these responses.
+
+Future work could also replace the entire input dataset to research different biases specific to the LLMs presented here. \citeauthor{grigorevaRuBiaRussianLanguage2024} presented a dataset that could be suitable for such work.
